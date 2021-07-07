@@ -3,7 +3,7 @@ import axios from "axios";
 import { apiBaseUrl } from "../constants";
 import { Patient } from "../types";
 import { useParams } from "react-router-dom";
-import { useStateValue } from "../state";
+import { getPatientInfo, useStateValue } from "../state";
 import { Icon } from "semantic-ui-react";
 
 
@@ -11,22 +11,31 @@ const PatientPage = () => {
   const [{ fetched }, dispatch] = useStateValue();
   const { id } = useParams<{ id: string }>();
 
-  if (fetched?.id !== id) {
+  React.useEffect(() => {
     const fetchPatient = async (id: string) => {
       try {
         const { data: patient } = await axios.get<Patient>(
           `${apiBaseUrl}/patients/${id}`
         );
-  
-        dispatch({ type: "GET_PATIENT_INFO", payload: patient });
-        console.log(patient);
+
+        dispatch(getPatientInfo(patient));
+        console.log("fetched: ", patient);
       } catch (e) {
         console.error(e);
       }
     };
-    void fetchPatient(id);
-  }
-  
+
+    // despite all the effort in understanding what goes wrong
+    // this is the only solution I got working
+    // the problem was that useEffect() would fire on every render
+    // despite no changes in the state
+    if (id !== fetched?.id) {
+      void fetchPatient(id);
+    }
+
+  }, [dispatch]);
+
+
   // needed because I've chosen poorly
   if (!fetched) return (<div><h1>test123</h1></div>);
 
