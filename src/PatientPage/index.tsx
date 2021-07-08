@@ -1,14 +1,13 @@
 import React from "react";
 import axios from "axios";
 import { apiBaseUrl } from "../constants";
-import { Patient } from "../types";
+import { Patient, Entry } from "../types";
 import { useParams } from "react-router-dom";
 import { getPatientInfo, useStateValue } from "../state";
-import { Icon } from "semantic-ui-react";
 
 
 const PatientPage = () => {
-  const [{ fetched }, dispatch] = useStateValue();
+  const [{ patient, diagnoses }, dispatch] = useStateValue();
   const { id } = useParams<{ id: string }>();
 
   React.useEffect(() => {
@@ -29,21 +28,42 @@ const PatientPage = () => {
     // this is the only solution I got working
     // the problem was that useEffect() would fire on every render
     // despite no changes in the state
-    if (id !== fetched?.id) {
+    if (id !== patient?.id) {
       void fetchPatient(id);
     }
 
   }, [dispatch]);
 
-
-  // needed because I've chosen poorly
-  if (!fetched) return (<div><h1>test123</h1></div>);
-
   return (
     <div>
-      <h3>{fetched.name} <Icon name="neuter"></Icon></h3>
-      <p>SSN: {fetched.ssn}</p>
-      <p>Occupation: {fetched.occupation}</p>
+      {patient
+        ? <div>
+          <h3>{patient.name}, {patient.gender}</h3>
+          <p>
+            SSN: {patient.ssn} <br />
+            Occupation: {patient.occupation}
+          </p>
+          <br />
+          <div>
+            <h4>Entries</h4>
+            {Object.values(patient.entries).map((entry: Entry) => (
+              <div key={entry.id}>
+                <p>{entry.date}: {entry.description}</p>
+                <ul>
+                  {entry.diagnosisCodes
+                    ? entry.diagnosisCodes.map((code) => <li key={code}>{code} {diagnoses[code] ? diagnoses[code].name : ""}</li>)
+                    : <p></p>}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        : <div>
+          <h1>Loading...</h1>
+        </div>}
+
+
     </div>
   );
 };
