@@ -30,7 +30,6 @@ const App = () => {
     void fetchPatientList();
 
     const getDiagnoses = async () => {
-      console.log("it's called we do little trolling");
       try {
         const { data: diagnoses } = await axios.get<Diagnosis[]>(
           `${apiBaseUrl}/diagnoses`
