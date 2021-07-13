@@ -6,7 +6,7 @@ import { useParams } from "react-router-dom";
 import { getPatientInfo, useStateValue } from "../state";
 import AddEntryModal from "../AddEntryModal";
 import { Button } from 'semantic-ui-react';
-import { EntryFormValues } from "../AddEntryModal/AddEntryForm";
+import { EntryWithoutId } from "../AddEntryModal/AddEntryForm";
 
 const PatientPage = () => {
   const [{ patient, diagnoses }, dispatch] = useStateValue();
@@ -46,7 +46,7 @@ const PatientPage = () => {
 
   }, [dispatch]);
 
-  const submitNewEntry = async (values: EntryFormValues) => {
+  const submitNewEntry = async (values: EntryWithoutId) => {
     try {
       const { data: newEntry } = await axios.post<Patient>(
         `${apiBaseUrl}/patients/${id}/entries`,
