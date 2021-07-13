@@ -1,21 +1,29 @@
 import React from 'react';
-import { Entry } from '../types';
+import { Diagnosis, Entry } from '../types';
+import HealthCheckEntry from './HealthCheckEntry';
+import HospitalEntry from './HospitalEntry';
+import OccupationalHealthcareEntry from './OccupationalHealthcareEntry';
 
-const PatientEntry: React.FC<{ entry: Entry, diagnosisName: string }> = ({ entry, diagnosisName }) => {
-  switch (entry.type) {
-    case "Hospital":
-      return <h1>Hospital Entry</h1>
 
-    case "HealthCheck":
-      return <h1>Health Check</h1>
+const PatientEntry: React.FC<{ entry: Entry, diagnoses: { [code: string]: Diagnosis } }>
+  = ({ entry, diagnoses }) => {
+    switch (entry.type) {
+      case "Hospital":
+        return <HospitalEntry entry={entry} diagnoses={diagnoses}
+          discharge={entry.discharge} />;
 
-    case "OccupationalHealthcare":
-      return <h1>Occupational Healthcare</h1>
+      case "HealthCheck":
+        return <HealthCheckEntry entry={entry} diagnoses={diagnoses}
+          healthCheckRating={entry.healthCheckRating} />;
 
-    default:
-      return <h1>Default Entry</h1>
-  }
+      case "OccupationalHealthcare":
+        return <OccupationalHealthcareEntry entry={entry} diagnoses={diagnoses}
+          employer={entry.employerName} sickLeave={entry.sickLeave} />;
 
-};
+      default:
+        return <h1>Default Entry</h1>;
+    }
+
+  };
 
 export default PatientEntry;

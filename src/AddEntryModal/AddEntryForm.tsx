@@ -2,18 +2,31 @@ import React from 'react';
 import { Grid, Button } from "semantic-ui-react";
 import { Field, Formik, Form } from "formik";
 import { TextField, DiagnosisSelection, NumberField } from "../AddPatientModal/FormField";
-import { Entry } from "../types";
 import { useStateValue } from '../state';
-
-// Define special omit for unions
-type UnionOmit<T, K extends string | number | symbol> = T extends unknown ? Omit<T, K> : never;
-// Define Entry without the 'id' property
-export type EntryWithoutId = UnionOmit<Entry, 'id'>;
+import { EntryWithoutId } from '../types';
 
 interface Props {
   onSubmit: (values: EntryWithoutId) => void;
   onCancel: () => void;
 }
+
+const validateDate = (date: string): string | undefined => {
+  let error;
+
+  if (!date) {
+    error = "Field is required";
+  }
+
+  if (!Date.parse(date)) {
+    error =  "Malformed date";
+  }
+
+  return error;
+};
+
+const validateString = (field : string): string | undefined => {
+  return field ? undefined : "Field is required";
+};
 
 export const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
   const [{ diagnoses }] = useStateValue();
@@ -21,15 +34,14 @@ export const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
 
   React.useEffect(() => {
     console.log(visitType);
-
   }, [visitType]);
 
   if (!visitType) {
     return (
       <div>
-        <p onClick={() => setVisitType("HealthCheck")}>Health Check</p>
-        <p onClick={() => setVisitType("OccupationalHealthcare")}>Occupational Healthcare</p>
-        <p onClick={() => setVisitType("Hospital")}>Hospital</p>
+        <Button onClick={() => setVisitType("HealthCheck")} color="blue">Health Check</Button>
+        <Button onClick={() => setVisitType("OccupationalHealthcare")} color="blue">Occupational Healthcare</Button>
+        <Button onClick={() => setVisitType("Hospital")} color="blue">Hospital</Button>
       </div>
     );
   }
@@ -42,42 +54,26 @@ export const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
         specialist: "",
         diagnosisCodes: [],
         type: visitType,
-        discharge: {date: "", criteria: ""},
+        discharge: { date: "", criteria: "" },
         healthCheckRating: 0,
         employerName: "",
-        sickLeave: { startDate: "", endDate: ""}
+        sickLeave: { startDate: "", endDate: "" }
       }}
       onSubmit={onSubmit}
       validate={values => {
         const requiredError = "Field is required";
         const errors: { [field: string]: string } = {};
+
         if (!values.description) {
           errors.description = requiredError;
         }
+
         if (!values.date) {
           errors.date = requiredError;
         }
+
         if (!values.specialist) {
           errors.specialist = requiredError;
-        }
-        
-        switch (values.type) {
-          case "OccupationalHealthcare":
-            if (!values.employerName) {
-              errors.employerName = requiredError;
-            }
-            break;
-
-          case "Hospital":
-            if (!values.discharge.date) {
-              errors.discharge = requiredError;
-            }
-            break;
-            
-          default:
-            if (!values.healthCheckRating) {
-              errors.healthCheckRating = requiredError;
-            }
         }
 
         return errors;
@@ -87,7 +83,6 @@ export const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
       {({ isValid, dirty, setFieldValue, setFieldTouched }) => {
         return (
           <Form className="form ui">
-
             <Field
               label="Description"
               placeholder="Description"
@@ -100,6 +95,7 @@ export const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
               placeholder="YYYY-MM-DD"
               name="date"
               component={TextField}
+              validate={validateDate}
             />
 
             <Field
@@ -127,20 +123,23 @@ export const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
                   placeholder="Employer"
                   component={TextField}
                   name="employerName"
+                  validate={validateString}
                 />
 
                 <Field
                   label="Sick leave start"
-                  placeholder="Sick leave start date"
+                  placeholder="YYYY-MM-DD"
                   name="sickLeave.startDate"
                   component={TextField}
+                  validate={validateDate}
                 />
 
                 <Field
                   label="Sick leave end"
-                  placeholder="Sick leave end date"
+                  placeholder="YYYY-MM-DD"
                   name="sickLeave.endDate"
                   component={TextField}
+                  validate={validateDate}
                 />
               </div>
             }
@@ -149,9 +148,10 @@ export const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
               <div onChange={() => setFieldValue("type", visitType)}>
                 <Field
                   label="Discharge date"
-                  placeholder="Discharge date"
+                  placeholder="YYYY-MM-DD"
                   name="discharge.date"
                   component={TextField}
+                  validate={validateDate}
                 />
 
                 <Field
@@ -159,6 +159,7 @@ export const AddEntryForm = ({ onSubmit, onCancel }: Props) => {
                   placeholder="Criteria"
                   name="discharge.criteria"
                   component={TextField}
+                  validate={validateString}
                 />
               </div>
             }

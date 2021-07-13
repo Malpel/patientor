@@ -5,8 +5,9 @@ import { Patient, Entry } from "../types";
 import { useParams } from "react-router-dom";
 import { getPatientInfo, useStateValue } from "../state";
 import AddEntryModal from "../AddEntryModal";
-import { Button } from 'semantic-ui-react';
-import { EntryWithoutId } from "../AddEntryModal/AddEntryForm";
+import { Button, Segment, Icon } from 'semantic-ui-react';
+import { EntryWithoutId } from '../types';
+import PatientEntry from "../components/PatientEntry";
 
 const PatientPage = () => {
   const [{ patient, diagnoses }, dispatch] = useStateValue();
@@ -36,10 +37,6 @@ const PatientPage = () => {
       }
     };
 
-    // despite all the effort in understanding what goes wrong
-    // this is the only solution I got working
-    // the problem was that useEffect() would fire on every render
-    // despite no changes in the state
     if (id !== patient?.id) {
       void fetchPatient(id);
     }
@@ -65,23 +62,21 @@ const PatientPage = () => {
     <div>
       {patient
         ? <div>
-          <h3>{patient.name}, {patient.gender}</h3>
-          <p>
-            SSN: {patient.ssn} <br />
-            Occupation: {patient.occupation}
-          </p>
+          <Segment><h2>{patient.name}
+            {patient.gender === "male" && <Icon name="man" />}
+            {patient.gender === "female" && <Icon name="woman" />}
+            {patient.gender === "other" && <Icon name="other gender horizontal" />}
+          </h2>
+            <p>
+              SSN: {patient.ssn} <br />
+              Occupation: {patient.occupation}
+            </p>
+          </Segment>
           <br />
           <div>
-            <h4>Entries</h4>
+            <h3>Entries</h3>
             {Object.values(patient.entries).map((entry: Entry) => (
-              <div key={entry.id}>
-                <p>{entry.date}: {entry.description}</p>
-                <ul>
-                  {entry.diagnosisCodes
-                    ? entry.diagnosisCodes.map((code) => <li key={code}>{code} {diagnoses[code] ? diagnoses[code].name : ""}</li>)
-                    : <p></p>}
-                </ul>
-              </div>
+              <PatientEntry key={entry.id} entry={entry} diagnoses={diagnoses} />
             ))}
           </div>
           <AddEntryModal
