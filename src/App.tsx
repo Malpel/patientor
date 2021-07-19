@@ -36,7 +36,6 @@ const App = () => {
         );
 
         dispatch(setDiagnoses(diagnoses));
-        console.log("diagnoses: ", diagnoses);
       } catch (e) {
         console.error(e);
       }

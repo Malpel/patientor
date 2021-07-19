@@ -37,10 +37,6 @@ const PatientListPage = () => {
     }
   };
 
-  const viewPatientInfo = (patientId: string) => {
-    console.log("viewing patient ", patientId);
-  };
-
   return (
     <div className="App">
       <Container textAlign="center">
@@ -58,7 +54,7 @@ const PatientListPage = () => {
         <Table.Body>
           {Object.values(patients).map((patient: Patient) => (
             <Table.Row key={patient.id}>
-              <Table.Cell onClick={() => viewPatientInfo(patient.id)}>
+              <Table.Cell>
                 <Link to={`/patients/${patient.id}`}>{patient.name}</Link>
               </Table.Cell>
               <Table.Cell>{patient.gender}</Table.Cell>

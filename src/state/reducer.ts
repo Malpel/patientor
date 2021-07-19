@@ -84,7 +84,6 @@ export const reducer = (state: State, action: Action): State => {
             (memo, diagnosis) => ({ ...memo, [diagnosis.code]: diagnosis }),
             {}
           ),
-          ...state.patients
         }
       };
 

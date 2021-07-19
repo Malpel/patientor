@@ -31,7 +31,6 @@ const PatientPage = () => {
         );
 
         dispatch(getPatientInfo(patientFromApi));
-        console.log("fetched: ", patientFromApi);
       } catch (e) {
         console.error(e);
       }
@@ -49,7 +48,6 @@ const PatientPage = () => {
         `${apiBaseUrl}/patients/${id}/entries`,
         values
       );
-      console.log("New entry: ", newEntry);
       dispatch(getPatientInfo(newEntry));
       closeModal();
     } catch (e) {
